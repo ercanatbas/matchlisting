@@ -1,0 +1,33 @@
+version: '3.4'
+
+services:
+  seq:
+    image: datalust/seq:latest
+
+  postgresdata:
+    image: postgres:latest
+    restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - pgconf:/etc/postgresql
+      - pglog:/var/log/postgresql
+
+  matchlist.api:
+    image: ${DOCKER_REGISTRY-}matchlistapi:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: service/MatchList.Api/Dockerfile
+      
+  client:
+    image: ${DOCKER_REGISTRY-}matchlistclient:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+
+volumes:
+  pgdata:
+    driver: local
+  pgconf:
+    driver: local
+  pglog:
+    driver: local

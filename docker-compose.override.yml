@@ -1,0 +1,42 @@
+version: '3.4'
+
+services:
+  seq:
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - "5340:80"
+
+  postgresdata:
+    environment:
+      - POSTGRES_USER=matchlist
+      - POSTGRES_PASSWORD=7eeb43dedd28b53b69f7cd74505b3457
+      - PGDATA=/var/lib/postgresql/data
+      - PGCONF=/etc/postgresql
+      - PGLOG=/var/log/postgresql
+    ports:
+      - 5432:5432   
+
+  matchlist.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - PORT=80
+      - ConnectionString=User ID=matchlist;Password=7eeb43dedd28b53b69f7cd74505b3457;Server=postgresdata;Database=matchListDb;Integrated Security=true;Pooling=true
+    ports:
+       - "5200:80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on: 
+     - postgresdata
+       
+  client:
+    environment:
+      - REACT_APP_HOSTLOCAL=localhost:5200
+    ports:
+      - 4000:80
+    volumes:
+      - '.:/app'
+      - '/app/node_modules' 
+
